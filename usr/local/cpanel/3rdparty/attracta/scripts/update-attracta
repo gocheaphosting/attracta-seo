@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+#	update-attracta
+#	Created by Attracta Online Services, Inc. http://attracta.com
+#	Copyright (c) 2013 Attracta. All rights reserved. Copying is prohibited
+#	The following code is subject to the General Embedded License Agreement for Use With cPanel
+#	This license can be found at /usr/local/cpanel/3rdparty/attracta/LICENSE
+#	Unauthorized use is prohibited
+
+package attracta::scripts::update_attracta;
+
+BEGIN { unshift( @INC, '/usr/local/cpanel' ); }
+
+use strict;
+use Cpanel::ThirdParty::Attracta::Updates         ();
+use Cpanel::ThirdParty::Attracta::Updates::Config ();
+
+#exit if not root
+if ( $> != 0 ) {
+    print "This script must be run by the root user.\n";
+    exit(2);
+}
+
+
+my ( $plugin_updates, $fastinclude_updates ) = Cpanel::ThirdParty::Attracta::Updates::Config::get_update_values();
+
+if ( $ARGV[0] && $ARGV[0] eq '--from-cron' ) {
+
+    if ( $fastinclude_updates eq 'manual' || $fastinclude_updates eq 'none' ) {
+        Cpanel::ThirdParty::Attracta::FastInclude::disableUpdate();
+
+        #ensure we do not auto update mod_fastinclude if set to none or manual
+    }
+
+    if ( $plugin_updates eq 'auto' ) {
+        Cpanel::ThirdParty::Attracta::Updates::update();
+		#auto update plugin if set to auto update
+    }
+
+    if ( $fastinclude_updates eq 'manual' ) {
+        Cpanel::ThirdParty::Attracta::FastInclude::enableUpdate();
+
+        #restore state of mod_fastinclude updates to manual (instead of never which is temporarily set to prevent auto update)
+    }
+}
+else {
+	print "Checking for updates from Attracta\n";
+    Cpanel::ThirdParty::Attracta::Updates::update(1);
+}

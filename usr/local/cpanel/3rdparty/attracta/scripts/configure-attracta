@@ -1,0 +1,214 @@
+#!/usr/bin/perl
+#	configure-attracta
+#	Created by Attracta Online Services, Inc. http://attracta.com
+#	Copyright (c) 2013 Attracta. All rights reserved. Copying is prohibited
+#	The following code is subject to the General Embedded License Agreement for Use With cPanel
+#	This license can be found at /usr/local/cpanel/3rdparty/attracta/LICENSE
+#	Unauthorized use is prohibited
+
+package attracta::update_attracta;
+
+BEGIN { unshift( @INC, '/usr/local/cpanel' ); }
+
+use strict;
+use Cpanel::FileUtils::Link                               ();
+use Cpanel::FileUtils::TouchFile                          ();
+use Cpanel::SafeDir::MK                                   ();
+use Cpanel::SafeRun::Full                                 ();
+use Cpanel::ThirdParty::Attracta::AttractaAPI::Server::Id ();
+use Cpanel::ThirdParty::Attracta::Cron                    ();
+use Cpanel::ThirdParty::Attracta::Jobs::Server::FixPerms  ();
+use Cpanel::ThirdParty::Attracta::Server::Id::Link        ();
+use Cpanel::ThirdParty::Attracta::Server::Id::Load        ();
+use Cpanel::ThirdParty::Attracta::Server::Id::Save        ();
+use Cpanel::ThirdParty::Attracta::Updates::Cron           ();
+use Cpanel::ThirdParty::Attracta::Validation              ();
+use Cpanel::ThirdParty::Attracta::Version                 ();
+
+#exit if not root
+if ( $> != 0 ) {
+    print "This script must be run by the root user. If you see this message during installation/upgrade. Please contact Attracta Support at https://support.attracta.com/\n";
+    exit(2);
+}
+
+my $partner_id = 0;
+
+if ( $ARGV[0] && $ARGV[0] =~ /^\d+$/ ) {
+    $partner_id = $ARGV[0];
+}
+elsif ( $ARGV[0] ) {
+    print "    Invalid partner ID specified $partner_id.\n";
+    print "    Server will not be linked with Attracta\n";
+}
+
+#Install the Attracta plugin
+my $installed_ok = attracta::update_attracta::install($partner_id);
+
+unless ( $installed_ok == 1 ) {
+    print "----------------------------------\n";
+    print "--  WARNING! WARNING! WARNING!  --\n";
+    print "--  PLUGIN INSTALL HAD ISSUES   --\n";
+    print "-- See above for error messages --\n";
+    print "-- Contact Attracta Support at  --\n";
+    print "-- http://support.attracta.com  --\n";
+    print "----------------------------------\n";
+}
+
+###### FUNCTIONS ######
+
+sub install {
+    my $partner_id = $_[0];
+
+    #Ensure config dir exists and permissions are correct
+    print "    1/7\n";
+    attracta::update_attracta::ensure_config_dir();
+    attracta::update_attracta::fix_perms();
+
+    #Ensure we have latest cron task
+    print "    2/7\n";
+    attracta::update_attracta::update_cron();
+
+    #Generate or update server id
+    print "    3/7\n";
+    unless ( attracta::update_attracta::ensure_server_id() ) {
+        return 0;
+    }
+
+    #Link with partner_account
+    print "    4/7\n";
+    unless ( $partner_id == 0 ) {
+        attracta::update_attracta::link_server($partner_id);
+    }
+
+    #Enable updates
+    print "    5/7\n";
+    attracta::update_attracta::enable_updates();
+
+    #Enable our hooks
+    print "    6/7\n";
+    attracta::update_attracta::enable_hooks();
+
+    #Set our latest installed version
+    print "    7/7\n";
+    Cpanel::ThirdParty::Attracta::Version::set( Cpanel::ThirdParty::Attracta::Version::get() );
+
+    return 1;
+}
+
+sub link_server {
+    my $partnerID = $_[0];
+    my $partner_id = Cpanel::ThirdParty::Attracta::AttractaAPI::Server::Id::add( { partnerID => $partnerID } );
+
+    if ( Cpanel::ThirdParty::Attracta::Validation::isInt($partner_id) ) {
+        print '	Server Linked with Attracta';
+
+        #Save partner ID
+        Cpanel::ThirdParty::Attracta::Server::Id::Link::save($partner_id);
+    }
+    else {
+        print 'Unable to link server with Attracta. Invalid partner ID: ' . $partner_id . ".\n";
+        print "Use /usr/local/cpanel/3rdparty/attracta/scripts/link_server.pl to link the server\n";
+        print "or link it in WHM.\n";
+    }
+}
+
+sub clean_hooks {
+    system('/usr/local/cpanel/bin/manage_hooks delete script /usr/local/cpanel/Cpanel/ThirdParty/Attracta/Hooks/PkgAcct-Restore.pl >/dev/null 2>&1');
+    system('/usr/local/cpanel/bin/manage_hooks delete script /usr/local/cpanel/Cpanel/ThirdParty/Attracta/Hooks/PkgAcct-Restore-Old.pl >/dev/null 2>&1');
+}
+
+sub enable_hooks {
+    attracta::update_attracta::clean_hooks();
+    attracta::update_attracta::install_hooks();
+}
+
+sub enable_updates {
+    Cpanel::ThirdParty::Attracta::Updates::Cron::remove();
+    Cpanel::ThirdParty::Attracta::Updates::Cron::add();
+}
+
+sub ensure_config_dir {
+
+    #ensure config directory exists
+    if ( !-d '/var/cpanel/attracta' ) {
+        Cpanel::SafeDir::MK::safemkdir( '/var/cpanel/attracta', '0700' );
+    }
+}
+
+sub ensure_server_id {
+
+    #Check for server id
+    if ( -f '/var/cpanel/attracta/server_info.conf' ) {
+        my $serverId = Cpanel::ThirdParty::Attracta::Server::Id::Load::load();
+
+        if ( !$serverId || Cpanel::ThirdParty::Attracta::Validation::isServerIdMD5($serverId) ) {
+            my $newId = Cpanel::ThirdParty::Attracta::Server::Id::Save::generate();
+            Cpanel::ThirdParty::Attracta::Server::Id::Save::save($newId);
+            Cpanel::ThirdParty::Attracta::AttractaAPI::Server::Id::update( $serverId, $newId );
+
+            #update sites to use new server id
+            attracta::update_attracta::update_sites_serverid();
+            return 1;
+        }
+        else {
+            return 1;
+        }
+    }
+    else {
+        print "    Setting up Attracta server configuration.\n";
+
+        my $serverId = Cpanel::ThirdParty::Attracta::Server::Id::Save::generate();
+
+        if ( Cpanel::ThirdParty::Attracta::Validation::isServerIDUUID($serverId) ) {
+            Cpanel::ThirdParty::Attracta::Server::Id::Save::save($serverId);
+            return 1;
+        }
+        else {
+            print 'WARNING: Could not generate server ID. Please contact Attracta Support at http://support.attracta.com.\n';
+            return;
+        }
+    }
+    return;
+}
+
+sub fix_perms {
+    unless ( -f '/var/cpanel/attracta/perms_fixed' || !-f '/var/cpanel/attracta/version' ) {
+        Cpanel::ThirdParty::Attracta::Jobs::Server::FixPerms::fix_all_perms();
+        Cpanel::FileUtils::TouchFile::touchfile('/var/cpanel/attracta/perms_fixed');
+    }
+}
+
+sub install_hooks {
+    my %args = (
+        'program' => '/usr/local/cpanel/bin/manage_hooks',
+        'args'    => [ 'add', 'script', '/usr/local/cpanel/Cpanel/ThirdParty/Attracta/Hooks/PkgAcct-Restore.pl', '>/dev/null 2>&1' ],
+    );
+    my $add_hook = Cpanel::SafeRun::Full::run(%args);
+    if ( ref($add_hook) eq 'HASH' ) {
+        if ( $add_hook->{status} != 1 ) {
+            print "    ERROR: Could not add hook for transferring accounts.";
+        }
+    }
+    else {
+        print "    Could not add hook for transferring accounts.";
+    }
+}
+
+sub update_cron {
+
+    #Remove any old cron jobs
+    Cpanel::ThirdParty::Attracta::Cron::removeOld() || do {
+        print "    Failed to remove previous Attracta cron jobs. Please contact support at http://support.attracta.com. \n";
+    };
+
+    #Add updated cron
+    Cpanel::ThirdParty::Attracta::Cron::removeAttracta();
+    Cpanel::ThirdParty::Attracta::Cron::addAttracta();
+}
+
+sub update_sites_serverid {
+    my %args = (
+        'program' => '/usr/local/cpanel/3rdparty/attracta/scripts/ensure_site_links.pl',
+    );
+    my $update_sites = Cpanel::SafeRun::Full::run(%args);
+}

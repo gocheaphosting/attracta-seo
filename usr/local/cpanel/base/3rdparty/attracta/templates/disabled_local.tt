@@ -1,0 +1,17 @@
+<style type="text/css">
+	<?cp Branding::spritelist(.spriteicon_img_mini {float:left;margin-right:5px;background: url\{leftparenthesis}"%"\{rightparenthesis};} %,@spriteurl,images::#icon-${img}_mini {background-position\{colon}0 -${cssposition}px;width\{colon}${width}px;height\{colon}${height}px; }:) imgtype=icon,subtype=img,method=scale_60percent,format=png,img=attracta ?>
+	td { word-wrap: break-word; }
+</style>
+<div class="body-content">
+	<div class="h1Title"><div class="spriteicon_img_mini" id="icon-subdomains_mini"></div>Search Engine Optimization (SEO) and Marketing Tools</div>
+	<p class="description">Your SEO and Marketing Tools help you optimize your website to show up in Google and other major search engines and can help drive traffic to your site. The tools and services are provided by <a href="http://www.attracta.com" target="_blank">Attracta</a><sup>&reg;</sup>, the World's Largest SEO Service.</p>
+	<br />
+	<div id="attractaCMS">
+		<h2>Access your SEO and Marketing Tools</h2>
+		<div class="highlight"> 
+			<center>
+				<p class="errors"><strong>There was an issue accessing your Attracta SEO and Marketing Tools account. Please <a style="text-decoration:underline;" href="http://support.attracta.com/anonymous_requests/new?email=[% email %]&ticket%5Bsubject%5D=AUTOMATED%20CPANEL%20REPORT:%20Account%20Disabled&description=%0A%0A------AUTOMATED%20SUPPORT%20CONTENT-------%0AHello,%20I%20tried%20accessing%20my%20SEO%20and%20Marketing%20Tools%20from%20cPanel%20but%20was%20unable%20to%20access%20them.%20Can%20you%20please%20re-enable%20my%20account.%0AAccount Id:%20[% config.companyId %]%20%20%0AAttracta%20Username:%20[% config.username %]%0AThanks!" target="_blank">contact Attracta Support</a> to resolve this issue.</strong></p>
+			</center>
+		</div>
+	</div>
+</div>

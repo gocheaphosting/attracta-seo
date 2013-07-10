@@ -1,0 +1,126 @@
+#!/usr/bin/perl
+
+package scripts::uninstall_attracta;
+
+BEGIN { unshift( @INC, '/usr/local/cpanel' ); }
+
+use strict;
+use Cpanel::FileUtils::Link                          ();
+use Cpanel::FindBin                                  ();
+use Cpanel::SafeDir::RM                              ();
+use Cpanel::SafeRun::Full                            ();
+use Cpanel::ThirdParty::Attracta::FastInclude::Setup ();
+
+#exit if not root
+if ( $> != 0 ) {
+    print "This script must be run by the root user.\n";
+    exit(2);
+}
+
+print "Uninstalling Attracta SEO Tools for cPanel Plugin\n";
+
+#Remove Apache Module
+Cpanel::ThirdParty::Attracta::FastInclude::Setup::remove();
+
+#Remove Attracta Icons
+scripts::uninstall_attracta::remove_old_dynamicui();
+
+#Remove any old plugin versions
+if ( -d '/usr/local/cpanel/Cpanel/Attracta' ) {
+    if ( !Cpanel::SafeDir::RM::safermdir('/usr/local/cpanel/Cpanel/Attracta') ) {
+        print "Failed to remove old Attracta plugin source.\n";
+        return;
+    }
+}
+if ( -d '/usr/local/cpanel/base/3rdparty/Attracta' ) {
+    if ( !Cpanel::SafeDir::RM::safermdir('/usr/local/cpanel/base/3rdparty/Attracta') ) {
+        print "Failed to remove old Attracta plugin source.\n";
+        return;
+    }
+}
+
+#Remove any old cron jobs
+Cpanel::ThirdParty::Attracta::Cron::removeOld() || do {
+    print "Failed to remove previous Attracta cron jobs.\n";
+    return;
+};
+
+#Remove Files from Filesystem
+#/var/cpanel/attracta
+Cpanel::SafeDir::RM::safermdir("/var/cpanel/attracta");
+
+#/usr/local/cpanel/3rdparty/attracta
+Cpanel::SafeDir::RM::safermdir("/usr/local/cpanel/3rdparty/attracta");
+
+#/usr/local/cpanel/Cpanel/ThirdParty/Attracta
+Cpanel::SafeDir::RM::safermdir("/usr/local/cpanel/Cpanel/ThirdParty/Attracta");
+
+#/usr/local/cpanel/whostmgr/docroot/cgi/attracta + addon_attracta.cgi
+Cpanel::SafeDir::RM::safermdir("/usr/local/cpanel/whostmgr/docroot/cgi/attracta");
+Cpanel::FileUtils::Link::safeunlink("/usr/local/cpanel/whostmgr/docroot/cgi/addon_attracta.cgi");
+
+#/usr/local/cpanel/base/3rdparty/attracta
+Cpanel::SafeDir::RM::safermdir("/usr/local/cpanel/base/3rdparty/attracta");
+
+#/var/cpanel/easy/apache/custom_opt_mods/
+Cpanel::FileUtils::Link::safeunlink("/var/cpanel/easy/apache/custom_opt_mods/Cpanel/Easy/ModFastInclude.pm");
+Cpanel::FileUtils::Link::safeunlink("/var/cpanel/easy/apache/custom_opt_mods/Cpanel/Easy/ModFastInclude.pm.tar.gz");
+
+#/usr/local/cpanel/bin/attracta(wrap|admin)
+Cpanel::FileUtils::Link::safeunlink("/usr/local/cpanel/bin/attractaadmin");
+Cpanel::FileUtils::Link::safeunlink("/usr/local/cpanel/bin/attractawrap");
+
+#Remove hooks
+system('/usr/local/cpanel/bin/manage_hooks delete script /usr/local/cpanel/Cpanel/ThirdParty/Attracta/Hooks/PkgAcct-Restore.pl');
+system('/usr/local/cpanel/bin/manage_hooks delete script /usr/local/cpanel/Cpanel/ThirdParty/Attracta/Hooks/PkgAcct-Restore-Old.pl');
+
+#Remove symlink to attracta scripts
+system('rm /scripts/attracta');
+
+print "Complete\n";
+
+sub remove_old_dynamicui {
+    my @files;
+    my $find_bin = Cpanel::FindBin::findbin('find');
+    my %args     = (
+        'program' => $find_bin,
+        'args'    => [ '/usr/local/cpanel/base/frontend/', '-name', 'dynamicui_attracta_*' ],
+    );
+    my $find_output = Cpanel::SafeRun::Full::run(%args);
+
+    if ( ref $find_output ne 'HASH' || !$find_output->{'status'} ) {
+        print "Failed to determine if old plugin dyanmicui confs exist (non-fatal, continuing).\n";
+    }
+    else {
+        my $output = $find_output->{'stdout'};
+        chomp $output;
+        if ($output) {
+            @files = split( /\n/, $output );
+        }
+    }
+
+    if ( scalar @files ) {
+        foreach my $file (@files) {
+            if ( !-l $file ) {
+                Cpanel::FileUtils::Link::safeunlink($file);
+            }
+        }
+        scripts::uninstall_attracta::rebuild_sprites() if ( !-e '/var/cpanel/dev_sandbox' );
+    }
+
+    return 1;
+}
+
+# rebuild theme/branding sprites
+sub rebuild_sprites {
+    my %args = (
+        'program' => '/usr/local/cpanel/bin/rebuild_sprites',
+        'args'    => [ '-dist', ],
+    );
+    my $rebuild_sprites = Cpanel::SafeRun::Full::run(%args);
+    if ( ref $rebuild_sprites ne 'HASH' || !$rebuild_sprites->{'status'} ) {
+        print "Failed to rebuild sprites prior to removing old plugin (non-fatal, continuing).\n";
+        return;
+    }
+    return 1;
+}

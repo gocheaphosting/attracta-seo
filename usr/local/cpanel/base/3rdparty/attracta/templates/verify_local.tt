@@ -1,0 +1,79 @@
+<html>
+
+<body>
+
+<div style="background-color:#efefef; padding:20px 0px;">
+<div style="width:560px; margin:auto; text-align:left; background-color:#fff; border:solid 1px #ccc; padding:20px;">
+
+<!-- begin header -->
+<div style="border-bottom: solid 1px #000; margin-bottom:20px;">
+  <table border=0 cellspacing=0 cellpadding=0 width="100%">
+    <tr>
+      <td><img id=logo src="https://www.attracta.com/static/user/v5/img/logo.png" border=0>
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+<!-- end header -->
+
+
+<!-- begin content -->
+<span style="font-family: Arial, Helvetica, sans-serif; font-size: 25px; font-weight: bold; line-height: 1.1em; letter-spacing: -1px; color:#323232;">Please verify your email address</span><br><br>
+
+
+<span style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; line-height: 1.5em; color:#4e4e4e;">
+In order to activate the enhanced features of your SEO and Marketing Tools, please verify your email address by clicking the link below.
+</span><br><br><br>
+
+<table>
+  <tr>
+    <td align="center" width="220px" bgcolor="#0067a0" style="background: #0067a0; -webkit-border-radius: 8px; -moz-border-radius: 8px; border-radius: 8px; color: #fff; font: bold 16px/1em Arial, Helvetica, Sans-Serif; text-decoration: none;"><a href="[% url %]" target="_blank" style="color: #fff; text-decoration: none; padding:15px 0px; display: block;">Click here to verify  &raquo;</a></td>
+  </tr>
+</table><br>
+
+
+<!-- end content -->
+
+
+<!-- begin footer -->
+<table width="100%" border="0" cellpadding="0" cellspacing="0"> 
+  <tr> 
+    <td height="30px"><img src="http://cdn.attracta.com/static/img/spacer.gif" height="30px" width="1px" style="display: block;"></td> 
+  </tr> 
+  <tr> 
+    <td height="1px" bgcolor="#dcdcdc"><img src="http://cdn.attracta.com/static/img/spacer.gif" height="1px" width="1px" style="display: block;"></td> 
+  </tr> 
+
+  <tr> 
+    <td height="30px"><img src="http://cdn.attracta.com/static/img/spacer.gif" height="30px" width="1px" style="display: block;"></td> 
+  </tr> 
+  <tr> 
+    <td align="left"><span style="font-family: Arial, Helvetica, sans-serif; font-size: 10px; line-height: 1.3em; color:#b3b3b3;">Attracta has certified that we adhere to the Safe Harbor Privacy Principles agreed by the U.S and E.U. For more information about Safe Harbor Privacy, visit the U.S. Department of Commerce's Safe Harbor Web site at <a href="https://safeharbor.export.gov/list.aspx" target="_blank" style="font-family: Arial, Helvetica, sans-serif; font-size: 10px; line-height: 1.3em; text-decoration: none;color:#787878;">safeharbor.export.gov/list.aspx</a>.  If you would like to contact Attracta directly about the Safe Harbor program or our Email Privacy Policy, please send an e-mail to privacy@attracta.com.</span></td> 
+  </tr> 
+  <tr> 
+    <td height="30px"><img src="http://cdn.attracta.com/static/img/spacer.gif" height="30px" width="1px" style="display: block;"></td> 
+  </tr> 
+  <tr> 
+    <td height="1px" bgcolor="#dcdcdc" colspan="3"><img src="http://cdn.attracta.com/static/img/spacer.gif" height="1px" width="1px" style="display: block;"></td> 
+  </tr> 
+  <tr> 
+    <td height="30px"><img src="http://cdn.attracta.com/static/img/spacer.gif" height="30px" width="1px" style="display: block;"></td> 
+  </tr> 
+  <tr> 
+    <td align="left"><span style="font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: bold; line-height: 1.3em; color:#323232;">Attracta | 860 Napa Valley Corporate Way, Suite R | Napa, CA 94558 | (888) 317-3994<br>Copyright &copy; 2012 Attracta. All Rights Reserved.</span></td> 
+  </tr> 
+  <tr> 
+    <td height="30px"><img src="http://cdn.attracta.com/static/img/spacer.gif" height="30px" width="1px" style="display: block;"></td> 
+  </tr> 
+</table>
+<!-- end footer -->
+
+</div>
+</div>
+
+</body>
+
+</html>
+

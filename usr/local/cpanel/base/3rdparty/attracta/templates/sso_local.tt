@@ -1,0 +1,32 @@
+<!-- Attracta Styles BEGIN -->
+<style type="text/css">
+	<?cp Branding::spritelist(.spriteicon_img_mini {float:left;margin-right:5px;background: url\{leftparenthesis}"%"\{rightparenthesis};} %,@spriteurl,images::#icon-${img}_mini {background-position\{colon}0 -${cssposition}px;width\{colon}${width}px;height\{colon}${height}px; }:) imgtype=icon,subtype=img,method=scale_60percent,format=png,img=attracta ?>
+	td { word-wrap: break-word; }
+	.attractaloading{
+		width:250px;
+		margin:0 auto;
+		text-align:center;
+	}
+</style>
+<!-- Attracta Styles END -->
+<!-- Attracta Content BEGIN -->
+<div class="body-content">
+	<div class="h1Title"><div class="spriteicon_img_mini" id="icon-subdomains_mini"></div>Search Engine Optimization (SEO) and Marketing Tools</div>
+	<p class="description">Your SEO and Marketing Tools help you optimize your website to show up in Google and other major search engines and can help drive traffic to your site. The tools and services are provided by <a href="http://www.attracta.com" target="_blank">Attracta</a><sup>&reg;</sup>, the World's Largest SEO Service.</p>
+	<br />
+	<div class="attractaloading">
+		<div id="attractaloadingstatus">
+			<img src="/3rdparty/attracta/images/loading.gif" alt="loading progress indicator" />
+			<p>Accessing your SEO and Marketing Tools</p>
+		</div>
+	</div>	
+</div>
+<script type="text/javascript">
+var login_to_attracta = function(){
+	setTimeout(
+		function() { 
+			document.location = '[% location %]';
+		}, 5000);
+}
+YAHOO.util.Event.onDOMReady(login_to_attracta);
+</script>

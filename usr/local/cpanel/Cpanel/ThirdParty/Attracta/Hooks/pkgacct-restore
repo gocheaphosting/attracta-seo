@@ -1,0 +1,93 @@
+#!/usr/bin/perl
+#	pkgacct-restore
+#	Created by David Koston (david@attracta.com) for Attracta (attracta.com)
+#	Copyright (c) 2013 Attracta. All rights reserved. Copying is prohibited
+#	The following code is subject to the General Embedded License Agreement for Use With Attracta
+#	This license can be found at /usr/local/cpanel/3rdparty/attracta/LICENSE
+#	Unauthorized use is prohibited
+
+BEGIN { unshift( @INC, '/usr/local/cpanel' ); }
+use strict;
+use Cpanel::AccessIds                                ();
+use Cpanel::Config::ConfigObj                        ();
+use JSON::Syck                                     ();
+use Cpanel::PwCache                                  ();
+use Cpanel::ThirdParty::Attracta::AttractaAPI::Sites ();
+use Cpanel::ThirdParty::Attracta::Company            ();
+use Cpanel::ThirdParty::Attracta::Cpanel::Reseller   ();
+use Cpanel::ThirdParty::Attracta::Server           ();
+
+#Ensure Attracta is enabled
+my $cObj   = Cpanel::Config::ConfigObj->new();
+my $driver = $cObj->get_driver('attracta');
+my $status = ( $driver->check() ) ? 1 : 0;
+
+unless ($status) {
+    print "1 attracta disabled. no updates will be done";
+    exit;
+}
+
+my $hookdata = get_passed_data();
+my $data     = $hookdata->{data};
+my $user     = $data->{user};
+
+Cpanel::AccessIds::do_as_user(
+    $user,
+    sub {
+        update_site_attracta($user);
+    }
+);
+
+sub update_site_attracta {
+    my $user = $_[0];
+
+    my $status  = 1;
+    my $message = '';
+
+    my $company = Cpanel::ThirdParty::Attracta::Company->new( { user => $user } );
+
+	#If company has attracta, update their server id with this server's id
+	if( $company->get_config()){
+		my $attracta_sites = $company->get_attracta_sites({ disabled_ok => 1});
+		
+		if( ref($attracta_sites) eq 'ARRAY'){
+			#get reseller email hash
+            my $resellerInfo = Cpanel::ThirdParty::Attracta::Cpanel::Reseller::getResellerInfo($user);
+
+            #get new server id
+            my $serverId = Cpanel::ThirdParty::Attracta::Server::getId();
+
+            foreach my $attracta_site ( @{$attracta_sites} ) {
+                my $url    = $attracta_site->{url}->{content};
+                my $siteId = $attracta_site->{siteid}->{content};
+                my $key    = $attracta_site->{ajsa}->{content};
+
+                #update server id
+                Cpanel::ThirdParty::Attracta::AttractaAPI::Sites::update_site_serverid( $siteId, $key, $serverId );
+
+                #update reseller email
+                Cpanel::ThirdParty::Attracta::AttractaAPI::Sites::update_reseller_email( $user, $resellerInfo->{email}, $url );
+            }
+
+            $message = 'sites updated.';
+		}else{
+			$message = 'no sites to update';
+		}
+	}
+	
+    return ( $status, $message );
+}
+
+sub get_passed_data {
+    my $raw_data   = '';
+    my $input_data = {};
+    my $selects    = IO::Select->new();
+    $selects->add( \*STDIN );
+    if ( $selects->can_read(.1) ) {
+        while (<STDIN>) {
+            $raw_data .= $_;
+        }
+        $input_data = JSON::Syck::Load($raw_data);
+    }
+    return $input_data;
+}

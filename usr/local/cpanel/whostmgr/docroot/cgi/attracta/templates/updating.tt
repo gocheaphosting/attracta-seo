@@ -1,0 +1,21 @@
+<link rel='stylesheet' type='text/css' href='//cdn.attracta.com/static/user/v5/cpanel.css' />
+<link rel='stylesheet' type='text/css' href='//cdn.attracta.com/static/user/v5/cpanelwhm.css' />
+
+<div id="attractaCMS">
+	<img class="attracta_logo" src="//cdn.attracta.com/static/public/v3/img/attracta_logo_315x87.gif" alt="Attracta - search visibility technology" />
+
+	<div id="header">
+		<img class="header_image" src="//cdn.attracta.com/static/user/v5/img/tool-0-icon-50.png" alt="check mark" />
+		<div id="pageToolTitle" class="btm">Increase Hosting Revenue With Attracta Products</div>
+	</div>
+
+	<div id="api_down">
+		<div id="status_light">
+			<img src="//cdn.attracta.com/static/user/v5/img/score_circle_red.png" alt="Currently Updating">
+		</div>
+		<div id="attracta_info">
+			<div class="bigger bold">SEO and Marketing Tools Are Currently Updating</div>
+			<p>Attracta SEO Tools are currently being updated. Please check back in a few minutes.</p>
+		</div>
+	</div>
+</div>

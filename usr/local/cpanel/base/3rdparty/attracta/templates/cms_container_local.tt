@@ -1,0 +1,86 @@
+<!-- Attracta Styles BEGIN -->
+<style type="text/css">
+	<?cp Branding::spritelist(.spriteicon_img_mini {float:left;margin-right:5px;background: url\{leftparenthesis}"%"\{rightparenthesis};} %,@spriteurl,images::#icon-${img}_mini {background-position\{colon}0 -${cssposition}px;width\{colon}${width}px;height\{colon}${height}px; }:) imgtype=icon,subtype=img,method=scale_60percent,format=png,img=attracta ?>
+	td { word-wrap: break-word; }
+</style>
+<!-- Attracta Styles END -->
+<!-- Attracta Content BEGIN -->
+<div class="body-content">
+	<div class="h1Title"><div class="spriteicon_img_mini" id="icon-subdomains_mini"></div>Search Engine Optimization (SEO) and Marketing Tools</div>
+	<p class="description">SEO and Marketing Tools allow for you to improve your site's visibility with Search Engines, increase site traffic and add additional software to your site. You can access your SEO Tools account below or add additional domains to your account.<p>
+	<div id="attractaCMS">
+		[% IF errors.size >= 1 %]
+		<center class="warning_text">
+		<p class="errors">
+			[% FOREACH error IN errors %]
+				[% error %]<br />
+			[% END %]
+		</p>
+		</center>
+		[% END %]
+	
+		<h2>Access your SEO Tools account</h2>
+		<div class="highlight"> 
+			<center>
+				<p><strong>Account Id:</strong> [% config.companyId %]</p>
+				<form method="POST" name="seotoolslogin" id="seo_tools_login" onsubmit="showLoginProgress();">
+					<input type="hidden" name="action" value="sso" />
+					<input type='hidden' name='id' value='[% id %]' />
+					<input class="input-button" id="access_seo_tools" type="submit" value="Go To My Account" name="access_seo_tools" /> <div id="loggingin" style="display:none;"> <img src="/3rdparty/attracta/images/loading-small-gray.gif" alt="login progress indicator"></div>
+				</form>
+			</center>
+		</div>
+		
+	
+		<br />
+		<h2>Register Pending Domains</h2>
+		<p class="description">Select domains below to add them to your SEO Tools account. NOTE: Domains that are redirected cannot be used with SEO Tools. If you wish to use SEO Tools on a domain, you must remove the redirect.<p>
+		<form id='installForm' name='installForm' method='POST' onsubmit="showProgress();">
+			<input type='hidden' name='action' value='install' />
+			<input type='hidden' name='id' value='[% id %]' />
+			<table id="subdomaintbl" class="sortable truncate-table" border="0" cellpadding="5" cellspacing="0">
+			    <tr>
+			      <th align="center" class="cell" width="350px">Domain</th>
+			      <th align="center" class="cell">SEO Tools Status</th>
+			      <th align="center" class="cell" width="55px">Select</th>
+			    </tr>
+			    <tbody>
+					[% rowCounter = 0 %]
+					[% sitesWithoutRedirect = 0 %]
+					[% FOREACH site IN sites %]
+						[% IF rowCounter mod 2 %]
+							[% trclass = 'row-even' %]
+						[% ELSE %]
+							[% trclass = 'row-odd' %]
+						[% END %]
+						<tr class="[% trclass %]">
+							<td>[% site.url %]</td>
+							[% IF site.targeturl %]
+							<td colspan="2" align="center">Site cannot be used with SEO Tools while redirected to [% site.targeturl %]</td>
+							[% ELSE %]
+							[% sitesWithoutRedirect = 1 %]
+							<td align="center">Not Registered</td>
+							<td align="center"><input type='checkbox' name='toInstall' value='[% site.url %]' /></td>
+							[% END %]
+						</tr>
+						[% rowCounter = rowCounter + 1 %]
+					[% END %]
+				</tbody>
+			</table>
+			[% IF sitesWithoutRedirect == 1 %]
+			<center>
+				<input type='submit' class="input-button" name="install-button" id="install-button" value='Register Selected Domains' /> <div id="installing" style="display:none;"> <img src="/3rdparty/attracta/images/loading-small.gif" alt="installation progress indicator"></div>
+			</center>
+			[% END %]
+		</form>
+	</div>
+</div>
+<!-- Attracta Content END -->
+<script type="text/javascript">
+	var showProgress = function(){
+		document.getElementById('installing').style.display='inline';
+	};
+	var showLoginProgress = function(){
+		document.getElementById('loggingin').style.display='inline';
+	};
+</script>

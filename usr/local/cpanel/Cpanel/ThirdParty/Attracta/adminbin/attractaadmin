@@ -1,0 +1,272 @@
+#!/usr/bin/perl
+#	attractaadmin
+#	Created by Attracta Online Services, Inc. http://attracta.com
+#	Copyright (c) 2013 Attracta. All rights reserved. Copying is prohibited
+#	The following code is subject to the General Embedded License Agreement for Use With Attracta
+#	This license can be found at /usr/local/cpanel/3rdparty/attracta/LICENSE
+#	Unauthorized use is prohibited
+
+# Sanatize @INC
+BEGIN {
+    unshift @INC, '/usr/local/cpanel';
+    @INC = grep( !/(^\.|\.\.|\/\.+)/, @INC );
+}
+
+use Cpanel::Logger ();
+use Digest::MD5    ();
+use Fcntl          ();
+use JSON::Syck     ();
+
+my $theargs = @ARGV ? join( ' ', @ARGV ) : <STDIN>;
+unless ( $theargs =~ /^(\d+) ([A-Z]+)/ ) {
+    print STDERR "$0 : Syntax Mismatch\n";
+    exit 1;
+}
+chomp($theargs);
+
+my ( $uid, $action ) = split( / /, $theargs );
+
+# Code used to ensure that the correct user is being run.
+my ( $user, $gid, $home ) = ( getpwuid( int($uid) ) )[ 0, 3, 7 ];
+
+if ( $user eq 'root' || $user eq '' ) {
+    print "[$0] Admin Binary called with invalid user.\n";
+    exit;
+}
+
+if ( !-e "/var/cpanel/users/$user" && $user ne 'cpanel' ) {
+    print "[$0] Admin binary called with invalid user.\n";
+    exit;
+}
+
+my $logger = Cpanel::Logger->new();
+
+# This command hash contains all the logic for the actions to be run as root
+# to add a new escalated action, add a new key with a value of a coderef to this hash
+my %commands = (
+    'GETSERVERID' => sub {
+        my $server_id = get_server_id();
+        print $server_id || 0;
+    },
+    'GETRESELLERINFO' => sub {
+
+        my ( $email, $domain ) = ( '', '' );
+        my $return = {
+            'error'  => undef,
+            'result' => 0,
+            'data'   => {},
+        };
+
+        my $owner_info = get_owner_info($user);
+
+        if ( $owner_info->{domain} ) {
+            $return->{data}->{domain} = $owner_info->{domain};
+            $return->{data}->{email}  = $owner_info->{email};
+            $return->{data}->{status} = 1;
+        }
+
+        print JSON::Syck::Dump( [$return] );
+    }
+);
+
+# Verify that the command exists
+if ( !exists $commands{$action} ) {
+    print "[$0] Not a valid action: '$action'.\n";
+    exit;
+}
+
+# This is needed by the Cpanel::AdminBin module
+print ".\n";
+
+# Execute the action in question
+$commands{$action}->();
+
+###### Subroutines ######
+
+sub get_server_id {
+    my $server_id_file = '/var/cpanel/attracta/server_info.conf';
+    my $line_contents = safe_get_file_line( $server_id_file, 'serverId: ' );
+    my $server_id;
+
+    if ( $line_contents eq '-1' ) {
+
+        #symlink, warn in log
+        $logger->warn('ATTRACTA-SEO: Attracta Server ID file is a symlink: /var/cpanel/attracta/server_info.conf. Contact http://support.attracta.com');
+
+    }
+    elsif ( $line_contents eq '-2' ) {
+
+        #Unable to open file, warn in log
+        $logger->warn('ATTRACTA-SEO: Unable to open Attracta Server ID file: /var/cpanel/attracta/server_info.conf. Contact http://support.attracta.com');
+
+    }
+    elsif ( isServerId($line_contents) ) {
+        $server_id = $line_contents;
+
+    }
+    else {
+        #Unknown input, discard
+        $logger->warn('ATTRACTA-SEO: We expected to get config data from /var/cpanel/attracta/server_info.conf but we got no data. Contact http://support.attracta.com');
+    }
+
+    return $server_id;
+}
+
+sub get_owner_info {
+    my ($cpanel_user) = @_;
+    my ( $email, $domain, $owner_name ) = ( '', '', '' );
+    my $owner_info = {
+        domain => undef,
+        email  => undef
+    };
+
+    if ( isCpanelUsername($cpanel_user) ) {    #Ensure valid cPanel user passed
+                                               #find cPanel user's owner
+        $owner_name = get_account_owner($cpanel_user);
+        if ( isCpanelUsername($owner_name) ) {
+            if ( $owner_name eq 'root' ) {
+                $domain = get_hostname();
+                $email = safe_get_file_line( '/etc/wwwacct.conf', "CONTACTEMAIL " );
+            }
+            else {
+                $email  = get_contact_email($owner_name);
+                $domain = get_domain($owner_name);
+            }
+
+            $owner_info->{domain} = $domain;
+            $owner_info->{email}  = Digest::MD5::md5_hex($email);
+
+        }
+        else {
+            #owner not found, warn
+            $logger->warn( 'ATTRACTA-SEO: No owner found for cPanel user ' . $cpanel_user . '. Contact http://support.attracta.com' );
+        }
+    }
+    else {
+        #Not a cPanel username, warn
+        $logger->warn('ATTRACTA-SEO: Invalid cPanel username passed to get_owner_info. Contact http://support.attracta.com');
+    }
+
+    return $owner_info;
+}
+
+sub get_account_owner {
+    my ($cpanel_user) = @_;
+    my $owner_name;
+
+    if ( $cpanel_user eq 'root' || $cpanel_user eq 'nobody' || $cpanel_user eq 'cpanel' ) {
+        return 'root';
+    }
+
+    if ( -f '/etc/trueuserowners' ) {
+        $owner_name = safe_get_file_line( '/etc/trueuserowners', "$cpanel_user: " );
+    }
+
+    unless ($owner_name) {
+        $owner_name = safe_get_file_line( '/var/cpanel/users/' . $cpanel_user, 'OWNER=' );
+    }
+
+    return $owner_name;
+}
+
+sub get_hostname {
+    my $hostname;
+
+    if ( -r '/proc/sys/kernel/hostname' ) {
+        my $hostname_string = safe_get_file_line('/proc/sys/kernel/hostname');
+        if ( isDomain($hostname_string) ) {
+            $hostname = $hostname_string;
+        }
+    }
+
+    unless ($hostname) {
+        chomp( $hostname = `/usr/local/cpanel/bin/hostname` );
+        $hostname =~ s/[\r\n]//g;
+    }
+
+    return $hostname;
+}
+
+sub get_contact_email {
+    my ($account_owner) = @_;
+
+    return safe_get_file_line( '/var/cpanel/users/' . $account_owner, 'CONTACTEMAIL=' );
+}
+
+sub get_domain {
+    my ($account_owner) = @_;
+
+    return safe_get_file_line( '/var/cpanel/users/' . $account_owner, 'DNS=' );
+}
+
+sub safe_get_file_line {
+    my ( $file_name, $line_matches ) = @_;    #$line_matches allows you to get the trailing value after the match
+
+    my $line_contents;
+
+    if ( !-l $file_name ) {                   #no symlinks
+        if ( sysopen( my $fh, $file_name, &Fcntl::O_RDONLY | &Fcntl::O_NOFOLLOW ) ) {    #read-only, no symlinks
+            flock( $fh, &Fcntl::LOCK_EX );
+            {
+                if ( !$line_matches ) {
+                    local $/;
+                    $line_contents = readline($fh);
+                    chomp($line_contents);
+                    $line_contents =~ s/[\r\n]//g;
+                }
+                else {
+                    while (<$fh>) {
+                        if ( $_ =~ /$line_matches/ ) {
+                            my $line_string = $_;
+                            my @line_strings = split( /$line_matches/, $line_string );
+                            $line_contents = $line_strings[1];
+                            chomp($line_contents);
+                            $line_contents =~ s/[\r\n]//g;
+                            last;
+                        }
+                    }
+                }
+            }
+            flock( $fh, &Fcntl::LOCK_UN );
+
+        }
+        else {
+            $line_contents = -2;
+        }
+    }
+    else {
+        $line_contents = -1;
+    }
+
+    return $line_contents;
+}
+
+########## Input Validation ##############
+sub isCpanelUsername {
+    unless ( $_[0] ) { return 0; }
+    return $_[0] =~ /^[a-zA-Z][a-zA-Z0-9\-]{0,7}$/
+      ? 1
+      : 0;    #alpha-numeric + dashes. starts with letter
+}
+
+sub isDomain {
+    unless ( $_[0] ) { return 0; }
+    return $_[0] =~ /^([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/
+      ? 1
+      : 0;
+}
+
+sub isServerId {
+    unless ( $_[0] ) { return 0; }
+    return isServerIdMD5( $_[0] ) || isServerIDUUID( $_[0] ) ? 1 : 0;    #UUID or 32 char hex
+}
+
+sub isServerIdMD5 {
+    unless ( $_[0] ) { return 0; }
+    return $_[0] =~ /^[0-9a-fA-F]{32}$/ ? 1 : 0;                         #32 char hexadecimal
+}
+
+sub isServerIDUUID {
+    unless ( $_[0] ) { return 0; }
+    return $_[0] =~ /^[0-9]{6}\-[0-9a-f]{8}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{4}\-[0-9a-f]{12}\-([0-9]{13}|[0-9]{10})$/ ? 1 : 0;    #server ID
+}

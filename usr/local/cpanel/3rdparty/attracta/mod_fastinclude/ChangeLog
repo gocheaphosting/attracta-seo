@@ -1,0 +1,41 @@
+1.4:
+	Remove unnecessary strlen check
+1.3:
+	Check first 256 chars of request to ensure it's actually html
+	Add check for .fastinclude file pre-filter to speed up non-fastinclude requests
+1.2:
+	Prevent execution of fastinclude when we cannot accurate determine mod_userdir docroot
+1.1:
+	c90 strict compilance
+1.0:
+	fix over logging issue
+0.9:
+	mod_userdir does not update document root of request so we need to check if a request has been altered by mod_userdir and update document root accordingly to ensure proper include
+0.8:
+	Explicitly deny symlinked .fastinclude files, even if FollowSymLinks or AllowSymLinksIfOwnerMatch are allowed
+	Fixes for PHP application interaction
+	
+0.7:
+	Allow for FastIncludeOff to be used within .htaccess. Fixes for cached-gzipped content
+
+0.6:
+	move filter to APR_HOOK_FIRST to access content before other modules
+	
+0.5:
+	Rework string functions to use apr_string.h functions to protect memory
+
+0.4:
+	Create per server config structure to hold devel_mode and module_off settings
+	Add ability to turn devel_mode on in httpd.conf with directive FastIncludeDevel On (converted DEVEL_MODE to conf->devel_mode)
+	Add ability to turn module off in httpd.conf with directive FastIncludeOff On
+0.3:
+	minor fixups
+	
+0.2:
+	Protection against NULL content-types. 
+	Ignore anything non 200
+	Array of content types and strncmp for memory protection
+	DEVEL_MODE for logging
+	
+0.1:
+	Module performs necessary inclusions with static filenames and content-types

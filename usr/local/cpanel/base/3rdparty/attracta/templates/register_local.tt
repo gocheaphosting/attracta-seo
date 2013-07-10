@@ -1,0 +1,76 @@
+<!--Attracta CSS and JS -->
+<link rel='stylesheet' type='text/css' href='//cdn.attracta.com/static/user/v5/cpanelcpanel.css' />
+<!--[if IE]>
+<link rel="stylesheet" type="text/css" href="//cdn.attracta.com/static/user/v5/core-ie.css" />
+<![endif]-->
+<!--Attracta page start -->
+<style type="text/css">
+	#termsofservice .bd{
+		overflow:auto;
+		padding: 5px;
+	}
+	#showtos {
+		cursor: pointer;
+	}
+	.warning_text{
+		color:red;
+	}
+</style>
+<div class="body-content">
+	<div class="h1Title"><div class="spriteicon_img_mini" id="icon-subdomains_mini"></div>Search Engine Optimization (SEO) and Marketing Tools</div>
+	<p class="description">Your SEO and Marketing Tools help you increase traffic to your website with free tools and services provided by Attracta<sup>&reg;</sup>, the World's Largest SEO Service.</p>
+	<br />
+	[% IF errors.size >= 1 %]
+		<center class="warning_text">
+			<h2>Unable to continue due to errors. Please correct any errors below and try again</a></h2>
+			<p class="errors">
+			[% FOREACH error IN errors %]
+				[% error %]<br />
+			[% END %]
+			</p>
+		</center>
+	[% END %]
+	
+	<h2>Access Your SEO and Marketing Tools</h2>
+
+	<div class="highlight">
+		<p>Please choose a username (email address) for your SEO and Marketing Tools account. Your address will be used to send SEO Reports that can be stopped at any time. Your email address will not be shared with any other parties without your consent.
+		<form id="attracta_signup" method="POST" onsubmit="showProgress();">
+			<input type="hidden" name="action" value="register" />
+			<input type="hidden" name="id" value="[% id %]" />
+			<table border="0" cellspacing="2" cellpadding="0">
+				<tbody>
+					<tr>
+						<td align="right" width="170px"><label for="emailaddress">Username (Email Address):</label></td>
+						<td><input type="text" style="width:300px;" name="emailaddress" id="emailaddress"></td>
+						<td><span id="emailaddress_error" style="width: 16px; height: 16px; " class="cjt_validation_error">&nbsp;</span></td>
+					</tr>
+					<tr>
+						<td colspan="3">
+						<p>In order to access your SEO and Marketing Tools, you must agree to the <a id="showtos">Terms and Conditions</a></p>
+						</td>
+					</tr>
+					<tr>
+						<td><input type="submit" id="submit" class="input-button" value="Ok"><input type="hidden" name="agreetos" id="agreetos" value="1" /><div id="registering" style="display:none;"> <img src="/3rdparty/attracta/images/loading-small-gray.gif" alt="registration progress indicator"></div></td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+</div>
+<script type='text/javascript'>
+	
+	var showProgress = function(){
+		document.getElementById('registering').style.display='inline';
+	};
+
+	var init_register_validation = function(){
+		var email_validator = new CPANEL.validate.validator("Email Address");
+		email_validator.add("emailaddress", "min_length(%input%, 1)", 'Please enter your email address.');
+		email_validator.add("emailaddress", "if_not_empty(%input%, CPANEL.validate.email)", 'Please use a valid email format.');
+		email_validator.attach();
+		CPANEL.validate.attach_to_form("submit", email_validator );
+	};
+	
+	YAHOO.util.Event.onDOMReady(init_register_validation);
+</script>

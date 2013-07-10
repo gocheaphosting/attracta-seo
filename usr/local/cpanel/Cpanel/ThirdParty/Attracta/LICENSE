@@ -1,0 +1,39 @@
+General Embedded License Agreement for Use With cPanel
+
+IMPORTANT: PLEASE READ THIS SOFTWARE LICENSE AGREEMENT CAREFULLY. DOWNLOADING, INSTALLING, UPDATING, OR OTHERWISE USING CPANEL® OR CPANEL-SUPPLIED SOFTWARE CONSTITUTES ACCEPTANCE OF THIS AGREEMENT.
+
+Attracta, Inc. ("Attracta") is willing to license the embedded software (the "Software") to you only upon the condition that you accept all of the terms contained in this license agreement. By downloading, installing, updating or otherwise using cPanel® or cPanel-supplied software, you are binding yourself and the business entity that you represent (collectively "User") to this non-exclusive limited license agreement (the "Agreement") and you further represent that you are duly authorized to do so. If you do not agree to all of the terms of this agreement, or are not authorized to do so, then Attracta is unwilling to license the embedded software to you and you must not download, install, update or otherwise use the Software.
+
+Ownership:
+The Software is owned by Attracta, and is protected by intellectual property laws, including but not limited to patent laws and copyright laws, and international copyright treaties. The Software is licensed, not sold. User does not acquire any right of ownership in the Software. 
+
+License:
+Conditioned upon compliance with the terms and conditions of this Agreement, Attracta grants to User a non-exclusive and non-transferable limited license to use the Software (A) solely as embedded in cPanel® or the cPanel-supplied software; (B) solely for the purpose of accessing and using cPanel® in accordance with your cPanel License Agreement and cPanel Terms of Service. 
+
+Limitations:
+User understands and agrees that the Software contains trade secrets of Attracta, including but not limited to the specific internal design and structure of the program and associated interface information. As such, User shall observe strict obligations of confidentiality with respect to the Software. Any breach of this Agreement will be punished to the full extent of the law.
+
+User may not nor permit anyone else to:
+1) Reverse assemble or reverse engineer the Software or any portion thereof;
+2) Enhance, improve, adapt, make any modifications or make any derivative works of the Software or any portion thereof;
+3) Reproduce, distribute, or transfer the Software, or portions thereof, to any third party;
+4) Resell, redistribute or transfer a modified or derivative version of the Software;
+5) Sell, rent, lease, assign, or sublet the Software or portions thereof. User understands and agrees that any attempted transfer, assignment, sublicense or use shall be void;
+6) Grant rights to any other person or entity;
+7) Use or export the Software in violation of any United States or international law or regulation.
+
+Term and Termination:
+This Agreement and the license granted herein shall automatically terminate upon expiration or termination of the license issued by cPanel for the product the Software is embedded in. User may terminate this Agreement and the license at any time by destroying all copies of the Software. User's rights under this Agreement will terminate immediately without notice from Attracta if User fails to comply with any provision of this Agreement. 
+Upon termination, User shall destroy all copies of the Software in its possession and control. All confidentiality obligations of User and all limitations of liability and disclaimers and restrictions of warranty shall survive termination of this Agreement. 
+
+Warranty Disclaimer:
+The Software is provided on an "AS IS" basis, without warranty of any kind, including without limitation the warranties of merchantability, fitness for a particular purpose and non-infringement. Attracta does not warrant that the Software will meet User's requirements, nor does it warrant that the operation of the Software be error-free. User agrees to assume the responsibility to take adequate precautions against damages to User's operations which could be caused by defects or deficiencies in the Software.
+
+Limitation on Liability:
+ATTRACTA SHALL NOT BE LIABLE FOR ANY LOSS OR DAMAGE HEREUNDER, INCLUDING, WITHOUT LIMITATION, ANY INNACCURACY OF DATA, LOSS OF PROFITS OR INDIRECT, SPECIAL, INCIDENTAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES REGARDLESS OF THE THEORY OF LIABILITY, EVEN IF ATTRACTA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. SOME JURISDICTIONS DO NOT ALLOW THE LIMITATION OF INCIDENTAL OR CONSEQUENTIAL DAMAGES, SO THOSE LIMITATIONS MAY NOT APPLY.
+
+Other:
+This Agreement shall be controlled by and construed under the laws of the State of California, United States of America, as if performed wholly within the state and without giving effect to the principles of conflict of laws, and the State and federal courts of California shall have jurisdiction over any claim arising under this Agreement. The parties specifically disclaim the UN Convention on Contracts for the International Sale of Goods. Notwithstanding, Attracta may seek interim injunctive relief in any court of appropriate jurisdiction with respect to any alleged breach of Attracta's intellectual property or proprietary rights. If any portion hereof is found to be void or unenforceable, the remaining provisions of the Agreement shall remain in full force and effect. This Agreement constitutes the entire agreement between the parties with respect to the license of the Software and supersedes any conflicting or additional terms contained in any purchase order or elsewhere, all of which terms are excluded. 
+
+cPanel® is a trademark of cPanel, Inc. All other third party marks are registered trademarks of their respective owners. All rights reserved.
+

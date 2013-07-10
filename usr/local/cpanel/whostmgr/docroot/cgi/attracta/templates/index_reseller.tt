@@ -1,0 +1,29 @@
+<!-- Attracta Content BEGIN-->
+<link rel='stylesheet' type='text/css' href='//cdn.attracta.com/static/user/v5/cpanelwhm2.css' />
+<div id="attractawrapper">
+    <img src="//cdn.attracta.com/static/user/v5/img/logo.png" alt="Attracta Logo" />
+    <br />
+    <div id="presignup">
+		<p class="headline">Good for your customers AND your bottom line.</p>
+		<p>The SEO and Marketing Tools included with cPanel provide your customers with free, easy-to-use Tools and services that help them succeed online. Plus, if they make any upgrade purchases, you get paid automatically.</p>
+		<p><b>Reseller Contact Email Address: [% IF email %][% email %][% ELSE %]not configured <a href="#" id="emailwhy">[ ? ]</a>[% END %]</b></p>
+
+		<div id="linkserver">
+			<p class="title">Create an Attracta Partner Account to get your revenue share!</p>
+			<p>After creating an Attracta Partner Account, you will automatically receive revenue share on all upgrades purchased by your customers.</p>
+			<p><a class="button" target="_blank" href="https://www.attracta.com/signup/partner?from=cpanel&level=reseller">Create an Attracta Partner Account Now</a></p>
+			<br /><br />
+			<p style="font-size:16px;">Have an Attracta Account?</p>
+			<p>If you are already registered with Attracta, make sure the above reseller contact email address is linked to your account.</p>
+			<p><a class="button" target="_blank" href="https://www.attracta.com/login">Login to my Attracta Account</a></p>
+			<br />
+		</div>
+
+		<div id="versioninfo">v: [% version %]</div>
+	</div>
+</div>
+<script type="text/javascript" src="[% cpanel_local_js %]"></script>
+<script type="text/javascript">
+	tt1 = new YAHOO.widget.Tooltip("tt1", { context:"emailwhy", text:"Please set a contact email address in the 'Update Contact Info' area of cPanel." }); 
+</script>
+<!-- Attracta Content END -->

@@ -1,0 +1,27 @@
+<!-- Attracta Styles BEGIN -->
+<style type="text/css">
+#attractaCMS .warning_message{
+	margin:50px 0px;
+}
+#attractaCMS .warning_text{
+	color:#369;
+	font-weight:bold;
+}
+</style>
+<!-- Attracta Styles END -->
+<!-- Attracta Content BEGIN -->
+<div class="body-content">
+	<div class="h1Title"><div class="spriteicon_img_mini" id="icon-subdomains_mini"></div>Search Engine Optimization (SEO) and Marketing Tools</div> 
+	<div id="attractaCMS"> 
+	
+		<div id="warning_down">
+			<center class="warning_message">
+				<p class="warning_text">Unable to access SEO and Marketing Tools via cPanel at this time. The tools should be back up shortly. We apologize for any inconvenience. If you see this message repeatedly, there may be a system issue.</p>
+			</center>
+		</div>	
+		<h2>Accessing SEO and Marketing Tools Outside of cPanel</h2>
+		<p>Existing SEO and Marketing Tools accounts can be accessed at <a style="text-decoration:underline;font-weight:bold;" href="https://www.attracta.com/login/" target="_blank">Attracta's Website</a>.</p>
+		<p>If you do not currently have a SEO and Marketing Tools account, you can <a style="text-decoration:underline;font-weight:bold;" href="https://www.attracta.com/signup/activate/?email=[% email %]&domain=[% domain %]" target="_blank">create a Free SEO and Marketing Tools account here</a>.</p>
+	</div> 
+</div>
+<!-- Attracta Content END -->

@@ -1,0 +1,10 @@
+INSTALLATION
+
+To install this module use /usr/local/apache/bin/apxs -i -a -c mod_fastinclude.c
+
+
+LICENSE 
+
+The module is subject to the Apache Module Embedded License Agreement for Use With Attracta
+This license agreement can be found at /usr/local/cpanel/3rdparty/attracta/mod_fastinclude/COPYING
+Unauthorized use is prohibited.

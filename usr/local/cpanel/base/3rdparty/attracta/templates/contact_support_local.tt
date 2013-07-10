@@ -1,0 +1,26 @@
+<!-- Attracta Styles BEGIN -->
+<style type="text/css">
+#attractaCMS .warning_message{
+	margin:50px 0px;
+}
+#attractaCMS .warning_text{
+	color:#369;
+	font-weight:bold;
+}
+</style>
+<!-- Attracta Styles END -->
+<div class="body-content">
+	<div class="h1Title"><div class="spriteicon_img_mini" id="icon-subdomains_mini"></div>Search Engine Optimization (SEO) and Marketing Tools</div>
+	<p class="description">Your SEO and Marketing Tools help you optimize your website to show up in Google and other major search engines and can help drive traffic to your site. The tools and services are provided by <a href="http://www.attracta.com" target="_blank">Attracta</a><sup>&reg;</sup>, the World's Largest SEO Service.</p>
+	<br />
+	<div id="attractaCMS"> 
+		<div id="warning_down">
+			<center class="warning_message">
+				<p class="warning_text">Unable to access SEO and Marketing Tools via cPanel at this time. Please use this link to <a style="text-decoration:underline;" href="http://support.attracta.com/anonymous_requests/new?email=[% email %]&ticket%5Bsubject%5D=AUTOMATED%20CPANEL%20REPORT:%20Error%20Accessing%20SEO%20Tools%20for%20[% domain %]&description=%0A%0A------AUTOMATED%20SUPPORT%20CONTENT-------%0AHello,%20I%20tried%20accessing%20my%20SEO%20and%20Marketing%20Tools%20from%20cPanel%20but%20was%20unable%20to%20access%20them.%20Can%20you%20please%20check%20if%20I%20have%20existing%20SEO%20and%20Marketing%20tools%20for%20[% email %]%20or%20[% domain %]%20and%20provide%20me%20with%20assistance%20on%20linking%20them%20to%20my%20cPanel%20if%20so.%20Thanks!%20Error:%20[% error %]">contact Attracta support</a>.</p>
+			</center>
+		</div>	
+		<h2>Accessing SEO and Marketing Tools Outside of cPanel</h2>
+		<p>Existing SEO and Marketing Tools accounts can be accessed at <a style="text-decoration:underline;font-weight:bold;" href="https://www.attracta.com/login/" target="_blank">Attracta's Website</a>.</p>
+		<p>If you do not currently have a SEO and Marketing Tools account, you can <a style="text-decoration:underline;font-weight:bold;" href="https://www.attracta.com/signup/activate/?email=[% email %]&domain=[% domain %]" target="_blank">create a Free SEO and Marketing Tools account here</a>.</p>
+	</div>
+</div>

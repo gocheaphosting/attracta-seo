@@ -1,0 +1,42 @@
+mod_fastinclude
+
+
+DESCRIPTION
+
+This module is intended as a very low overhead way to add content to HTTP 200 requests without modifying anything other than the length of the request. As such, a bucket with the content is added before the EOS bucket should the module not be denied by .htaccess and the file described below exists.
+
+This module allows for the inclusion of JavaScript content at the bottom of the following types of pages:
+	text/html
+
+
+Placement of a file called .fastinclude in a document root will result in the inclusion of the contents of that file in the last bucket of the http response.
+
+
+
+INSTALLATION
+
+see INSTALL 
+
+
+
+DIRECTIVES
+
+You can set a directive to output details about what the module is doing:
+
+<IfModule fastinclude_module>
+    FastIncludeDevel On
+</IfModule>
+
+You can also turn off the module within .htaccess like so:
+
+<IfModule fastinclude_module>
+    FastIncludeOff On
+</IfModule>
+
+
+LICENSE
+
+The module is subject to the Apache Module Embedded License Agreement for Use With cPanel
+This license agreement can be found at /usr/local/cpanel/3rdparty/attracta/mod_fastinclude/COPYING
+Unauthorized use is prohibited. 
+

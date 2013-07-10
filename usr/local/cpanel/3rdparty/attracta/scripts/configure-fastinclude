@@ -1,0 +1,87 @@
+#!/usr/bin/perl
+#	configure-fastinclude
+#	Created by David Koston (david@attracta.com) for Attracta (attracta.com)
+#	Copyright (c) 2013 Attracta. All rights reserved. Copying is prohibited
+#	The following code is subject to the General Embedded License Agreement for Use With cPanel
+#	This license can be found at /usr/local/cpanel/3rdparty/attracta/LICENSE
+#	Unauthorized use is prohibited
+
+package attracta::scripts::configure_fastinclude;
+
+BEGIN { unshift( @INC, '/usr/local/cpanel' ); }
+use strict;
+use Cpanel::ThirdParty::Attracta::FastInclude        ();
+use Cpanel::ThirdParty::Attracta::FastInclude::Setup ();
+use Cpanel::ThirdParty::Attracta::Version            ();
+
+
+#exit if not root
+if ( $> != 0 ) {
+    print "This script must be run by the root user. If you see this message during installation/upgrade. Please contact Attracta Support at http://support.attracta.com/\n";
+    exit(2);
+}
+
+attracta::scripts::configure_fastinclude::handleFI();
+
+sub handleFI {
+    print "\nCONFIGURING FastInclude (mod_fastinclude) AS NEEDED.\n";
+
+    #Check to see if apache module is new
+    # NOTE: we may have got the fi version info above, but it can't be trusted
+    #  since it was prior to asserting the full deployment of Attracta Perl
+    #  namespace
+    my ( $fastinclude_current, $fastinclude_latest ) = attracta::scripts::configure_fastinclude::get_fi_version_state();
+
+    if ( Cpanel::ThirdParty::Attracta::FastInclude::isUpdateDisabled() ) {
+        if ( $fastinclude_latest > $fastinclude_current ) {
+            print "    Attracta Apache Module (mod_fastinclude) updates are disabled. NEWER module is available. Please update manually at your convenience\n";
+            exit;
+        }
+        else {
+            print "    Attracta Apache Module (mod_fastinclude) updates are disabled. Module is up to date\n";
+            exit;
+        }
+    }
+
+	my $update_fi = 0;
+
+	if( !Cpanel::ThirdParty::Attracta::FastInclude::isDisabled() ){
+		if ( !$fastinclude_current ) {
+		    $update_fi = 1;
+		    print "    Installing Attracta Apache Module (mod_fastinclude $fastinclude_latest).\n";
+		}
+		elsif ( $fastinclude_latest > $fastinclude_current ) {
+
+		    # run 'update' for any previous, enabled dist which needs latest fastinclude
+		    $update_fi = 1;
+		    my $fastinclude_current = ($fastinclude_current) ? $fastinclude_current : '--';
+		    print "    Updating Attracta Apache Module (mod_fastinclude) from $fastinclude_current to $fastinclude_latest.\n";
+		}
+
+		if ($update_fi) {
+
+		    #update
+		    if ( Cpanel::ThirdParty::Attracta::FastInclude::isInstalled() ) {
+		        Cpanel::ThirdParty::Attracta::FastInclude::Setup::remove();
+		    }
+		    Cpanel::ThirdParty::Attracta::FastInclude::Setup::install();
+		    Cpanel::ThirdParty::Attracta::Version::setFI($fastinclude_latest);
+		}
+		else {
+		    print "    Attracta Apache Module (mod_fastinclude $fastinclude_latest) is current.\n";
+			Cpanel::ThirdParty::Attracta::Version::setFI($fastinclude_latest);
+		}
+	}else{
+		print "	FastInclude is disabled. Remove /var/cpanel/attracta/fastinclude_off to enable it\n";
+		print "	or enable it in WHM under Attracta SEO and Marketing Tools\n";
+	}
+ 
+    return 1;
+}
+
+# do not call this unless you're certain the Attracta Perl has been deployed!
+sub get_fi_version_state {
+    my $fastinclude_latest  = Cpanel::ThirdParty::Attracta::Version::getFI();
+    my $fastinclude_current = Cpanel::ThirdParty::Attracta::Version::loadFI();
+    return ( $fastinclude_current, $fastinclude_latest );
+}

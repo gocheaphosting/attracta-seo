@@ -1,0 +1,195 @@
+<!-- Attracta Styles BEGIN -->
+<style type="text/css">
+	<?cp Branding::spritelist(.spriteicon_img_mini {float:left;margin-right:5px;background: url\{leftparenthesis}"%"\{rightparenthesis};} %,@spriteurl,images::#icon-${img}_mini {background-position\{colon}0 -${cssposition}px;width\{colon}${width}px;height\{colon}${height}px; }:) imgtype=icon,subtype=img,method=scale_60percent,format=png,img=attracta ?>
+	td { word-wrap: break-word; }
+	.cpanelinput{ width:200px; float:left;}
+	.cpanellabel{ width:70px; float:left; text-align:right; margin-right:5px;}
+	.right{float:right;margin-right:5px;}
+</style>
+<!-- Attracta Styles END -->
+<!-- Attracta Content BEGIN -->
+<div class="body-content">
+	<div class="h1Title"><div class="spriteicon_img_mini" id="icon-subdomains_mini"></div>Search Engine Optimization (SEO) and Marketing Tools</div>
+	<p class="description">SEO and Marketing Tools allow for you to improve your site's visibility with Search Engines, increase site traffic and add additional software to your site. You can access your SEO Tools account below or add additional domains to your account.<p>
+	<div id="attractaCMS">	
+		<div id="loginaccount">
+			<div class="highlight" style="float:left;width:330px;"> 
+				<h2>Existing Account Found</h2>
+				<p id="dupeemail" class="errors">We found an existing account for the email address below.</p>
+				<p>If you wish to use this email, please login below. Otherwise, please create an account to the right.</p>
+				<form onsubmit="tryLogin();return false;" name="seotoolslogin" id="seotoolslogin">
+					<table border="0" cellspacing="2" cellpadding="0">
+						<tbody>
+							<tr>
+								<td><label for="email" class="cpanellabel">Email: </label><input class="cpanelinput" type="text" name="email" id="email" value="[% email %]" /></td>
+							</tr>
+							<tr>
+								<td><label for="password" class="cpanellabel">Password: </label><input class="cpanelinput" type="password" name="password" id="password" /> <span id="password_error"></span></td>
+							</tr>
+							<tr>
+								<td>
+									<input type="submit" name="submitlogin" class="input-button right" id="submitlogin" value="Login" /> <div id="loggingin" style="display:none;"> <img src="/3rdparty/attracta/images/loading-small-gray.gif" alt="login progress indicator"></div>
+									<a onclick="recoverPass();return false;" class="right" href="#">Recover Password</a>
+								</td>
+							</tr>
+							<tr>
+								<td><div id="login_status">&nbsp;</div></td>
+							</tr>
+						</tbody>
+					</table>
+				</form>
+			</div>
+			<div class="highlight" style="float:right;width:330px;"> 
+				<h2>Create New Account</h2>
+				<p>Create a new SEO and Marketing Tools account by providing your email address below.</p>
+				<form onsubmit="createAccount();return false;" name="seotoolscreate" id="seotoolscreate">
+					<table border="0" cellspacing="2" cellpadding="0">
+						<tbody>
+							<tr>
+								<td><label for="email" class="cpanellabel">Email: </label><input class="cpanelinput" type="text" name="newemail" id="newemail" /> <span id="newemail_error"></span></td>
+							</tr>
+							<tr>
+								<td>
+									<input type="submit" name="newaccount" class="input-button right" id="newaccount" value="Create Account" /> <div id="creating" style="display:none;"> <img src="/3rdparty/attracta/images/loading-small-gray.gif" alt="account creation progress indicator"></div>
+								</td>
+							</tr>
+							<tr>
+								<td><div id="newaccount_status">&nbsp;</div></td>
+							</tr>
+						</tbody>
+					</table>
+				</form>
+			</div>
+		</div>
+		
+	</div>
+</div>
+<!-- Attracta Content END -->
+									
+
+<script type="text/javascript">
+	function clearErrors(div){
+	    var divObj = document.getElementById(div);
+	    divObj.innerHTML = "";
+	}
+
+	function displayErrors(error, div){
+	    var divObj = document.getElementById(div);
+		divObj.style.color = 'red';
+	    divObj.innerHTML = error;
+	}
+	function displaySuccess(message, div){
+	    var divObj = document.getElementById(div);
+		divObj.style.color = 'green';
+	    divObj.innerHTML = message;
+	}
+
+
+	var createAccount = function(){
+		showProgressNew();
+		var newemail = document.getElementById('newemail').value;
+		document.location = CPANEL.security_token + '/3rdparty/attracta/index.live.pl?id=[% id %]&action=register&agreetos=1&emailaddress=' + newemail;
+	}
+	
+	var tryLogin = function(){
+	    try{
+	        var email = document.getElementById('email').value;
+			var password = document.getElementById('password').value;
+
+			showProgress();
+
+	        var ajaxURL = CPANEL.security_token + '/3rdparty/attracta/login.cgi';
+	        var postData = 'username=' + encodeURIComponent(email) + '&password=' + encodeURIComponent(password);
+	        var callback = {
+	            success: function(o){
+	                if (o.responseText) {
+	                    var returnData = YAHOO.lang.JSON.parse(o.responseText);
+	                    if(returnData.status === 1){
+	                        document.location = CPANEL.security_token + '/3rdparty/attracta/index.live.pl?id=[% id %]';
+	                    }else{
+	                        displayErrors('Unable to log in: ' + returnData.message, 'login_status');
+	                        setTimeout('clearErrors("login_status")', 5000);
+	                    }
+	                }else{
+	                    displayErrors('Error while trying to log in. Please try again', 'login_status');
+	                    setTimeout('clearErrors("login_status")', 5000);
+	                }
+	            },
+	            failure: function(o){
+	                try{
+	                    displayErrors('Unable to log in', 'login_status');
+	                    setTimeout('clearErrors("login_status")', 5000);
+	                }catch(err){
+	                    console.log('Error logging in: ' + err);
+	                }
+	            }
+	        }
+
+	        var transaction = YAHOO.util.Connect.asyncRequest('POST', ajaxURL, callback, postData);
+	    }catch(err){
+	        console.log('Error when trying to log in: ' + err);
+	    } 
+	}
+
+
+	var recoverPass = function(){
+		try{
+			var email = document.getElementById('email').value;
+	        var ajaxURL = CPANEL.security_token + '/3rdparty/attracta/resetpass.cgi';
+	        var postData = 'email=' + encodeURIComponent(email);
+	        var callback = {
+	            success: function(o){
+	                if (o.responseText) {
+	                    var returnData = YAHOO.lang.JSON.parse(o.responseText);
+	                    if(returnData.status === 1){
+	                        //inform them of password reset
+							displaySuccess('Please check your email (' + email + ') for information about recovering your password.', 'login_status');
+	                    }else{
+	                        displayErrors('Unable to recover password: ' + returnData.message, 'login_status');
+	                        setTimeout('clearErrors("login_status")', 5000);
+	                    }
+	                }else{
+	                    displayErrors('Error while trying to recover password. Please try again', 'login_status');
+	                    setTimeout('clearErrors("login_status")', 5000);
+	                }
+	            },
+	            failure: function(o){
+	                try{
+	                    displayErrors('Unable to recover password', 'login_status');
+	                    setTimeout('clearErrors("login_status")', 5000);
+	                }catch(err){
+	                    console.log('Error recovering password ' + err);
+	                }
+	            }
+	        }
+
+	        var transaction = YAHOO.util.Connect.asyncRequest('POST', ajaxURL, callback, postData);
+		}catch(err){
+			console.log('Error while recovering pass: ' + err);
+		}
+	}
+
+
+	
+	var password_validator = new CPANEL.validate.validator("Password");
+	password_validator.add("password", "min_length(%input%,1)", 'Please enter your account password.');
+	password_validator.attach();
+	CPANEL.validate.attach_to_form("submitlogin", password_validator );
+	
+	var init_register_validation = function(){
+		var email_validator = new CPANEL.validate.validator("Email");
+		email_validator.add("newemail", "min_length(%input%, 1)", 'Please enter your email address.');
+		email_validator.add("newemail", "if_not_empty(%input%, CPANEL.validate.email)", 'Please use a valid email format.');
+		email_validator.attach();
+		CPANEL.validate.attach_to_form("newaccount", email_validator );
+	};
+	
+	var showProgress = function(){
+		document.getElementById('loggingin').style.display='inline';
+	};
+	var showProgressNew = function(){
+		document.getElementById('creating').style.display='inline';
+	};
+	
+	YAHOO.util.Event.onDOMReady(init_register_validation);
+</script>

@@ -1,0 +1,257 @@
+<!-- Attracta Content BEGIN-->
+<link rel='stylesheet' type='text/css' href='//cdn.attracta.com/static/user/v5/cpanelwhm2.css' />
+<style type="text/css">
+#filoadingenabled,#filoadingdisabled{
+	display:none;
+}
+</style>
+<div id="attractawrapper">
+    <img src="//cdn.attracta.com/static/user/v5/img/logo.png" alt="Attracta Logo" />
+    <br />
+    <div id="presignup">
+		<p class="headline">Good for your customers AND your bottom line.</p>
+		<p>The SEO and Marketing Tools included with cPanel provide your customers with free, easy-to-use Tools and services that help them succeed online. Plus, if they make any upgrade purchases, you get paid automatically.</p>
+		[% IF partnerID %]
+		<div id="serverlinked">
+			<p class="title">Server Linked to your Attracta Partner Account</p>
+			<p>This server has been linked to your Attracta Partner Account</p>
+			<p>Linked Partner ID: <strong>[% partnerID %]</strong>.</p>
+			<p><a target="_blank" href="https://www.attracta.com/login">Go to partner account login&gt;&gt;</a>
+		</div>
+		[% ELSE %]
+		<div id="linkserver">
+			<p class="title">Link this server to your Attracta Partner Account</p>
+			<p>In order for us to track the revenue owed to you from customer upgrades, you must link your server(s) to your Attracta Partner Account. Once linked, your revenue will be automatically credited to your Account. Use your "Partner ID" to link your server(s).</p>
+			<div id="linkserver_status">&nbsp;</div>
+	        <form id="linkserverform" name="linkserverform" onsubmit="linkServer();return false;">
+				<label for="partnerid">Partner ID:</label> 
+				<input type="text" id="partnerid" name="partnerid"> <span id="partnerid_error" style="width: 16px; height: 16px; " class="cjt_validation_error">&nbsp;</span>
+				<input type="submit" id="linkserverbutton" name="linkserverbutton" value="Link This Server" /> 
+				<p style="font-size:14px;"><strong>Need a Partner ID?</strong> <a target="_blank" href="https://www.attracta.com/signup/partner?from=cpanel&level=root">Get it here</a></p>
+
+			</form>
+
+			<p><strong>Forgot your partner ID?</strong> <a id="idlink" style="font-size:16px;text-decoration:none;" href="javascript:toggleIDText();">+</a></p>
+			<p id="idtext" style="display:none;">
+				You can find your Partner ID by going to your <a target="_blank" href="https://www.attracta.com/login/">Attracta Partner Account</a><br><br>
+			</p>
+			<p><strong>Have multiple servers?</strong> <a style="font-size:16px;text-decoration:none;" id="showlink" href="javascript:toggleLinkText();">+</a></p>
+			<p id="linktext" style="display:none;">
+				To link multiple servers, simply run the following command on each server from SSH as root (replace partnerID with your partner ID):<br><br>
+				echo "partnerID" | /usr/local/cpanel/3rdparty/attracta/scripts/link_server.pl<br><br>
+			</p>
+		</div>
+		[% END %]
+		<div id="modfastincludeon">
+			<p class="title">Attracta Enhanced Features</p>
+			<p>Attracta SEO Tools use an Apache module (mod_fastinclude) to seamlessly add services like Google Analytics to customer websites when the services are activated in the Attracta SEO Tools interface in cPanel. If you turn off the apache module, customers will not be able to use these free and paid services and the services will not show within their SEO Tools interface in cPanel. You can configure which services are available to your customers within your <a target="_blank" href="https://www.attracta.com/login/">Attracta Partner Account</a> on a per service basis. The module works by appending JavaScript content to Apache responses.</p>
+			<p>The apache module (mod_fastinclude) for Enhanced Features is currently: <strong>Enabled</strong></p>
+			<form name="fastincludeoff" id="fastincludeoff" onsubmit="disableFI();return false;">
+				<input type="submit" name="fioff" id="fioff" value="Disable Apache Module" /> <div id="filoadingenabled"><img src="attracta/images/loading-enabled.gif" alt="loading..." /></div>
+			</form>
+			<div id="disable_fi_status">&nbsp;</div>
+		</div>	
+		<div id="modfastincludeoff">
+			<p class="title">Attracta Enhanced Features</p>
+			<p>Attracta SEO Tools use an Apache module (mod_fastinclude) to seamlessly add services like Google Analytics to customer websites when the services are activated in the Attracta SEO Tools interface in cPanel. If you turn off the apache module, customers will not be able to use these free and paid services and the services will not show within their SEO Tools interface in cPanel. You can configure which services are available to your customers within your <a target="_blank" href="http://www.attracta.com/login/">Attracta Partner Account</a> on a per service basis. The module works by appending JavaScript content to Apache responses.</p>
+			<p>The apache module (mod_fastinclude) for Enhanced Features is currently: <strong>Disabled</strong></p>
+			<form name="fastincludeoff" id="fastincludeoff" onsubmit="enableFI();return false;">
+				<input type="submit" name="fioff" id="fioff" value="Enable Apache Module" />  <div id="filoadingdisabled"><img src="attracta/images/loading-disabled.gif" alt="loading..." /></div>
+			</form>
+			<div id="enable_fi_status">&nbsp;</div>
+		</div>
+		<div id="message">Warning!  By disabling these cPanel functions, you may remove valuable features from users who are already paying for them, as well as disabling a number of revenue-generating services bundled with this cPanel distribution. Please see your Attracta Reseller Console or contact reseller@attracta.com to confirm your account status before removing these services.</div>
+
+		<div id="versioninfo">v:[% version %]</div>
+<script type="text/javascript" src="[% cpanel_local_js %]"></script>
+<script type="text/javascript">
+[% IF partnerID == '' %]
+	var partnerid_validator = new CPANEL.validate.validator("Partner ID");
+	partnerid_validator.add("partnerid", "if_not_empty(%input%, CPANEL.validate.positive_integer)", 'Please enter your Attracta Partner ID (numeric).');
+	partnerid_validator.add("partnerid", "min_length(%input%, 1)", 'Your Partner ID cannot be empty.');
+	partnerid_validator.attach();
+	
+	CPANEL.validate.attach_to_form("linkserverbutton", [ partnerid_validator ] );
+[% END %]
+
+	function clearErrors(div){
+	    var divObj = document.getElementById(div);
+	    divObj.innerHTML = "";
+	}
+
+	function displayErrors(error, div){
+	    var divObj = document.getElementById(div);
+	    divObj.innerHTML = error;
+	}
+
+	function disableFI(){
+	    try{
+	        var message = document.getElementById('message').innerHTML;
+	        var answer = confirm(message);
+	        if(answer){
+	            doDisableFI();
+	        }else{
+	            return false;
+	        }
+	    }catch(err){
+	        console.log( 'message error: ' + err);
+	    }
+	}   
+    
+	function doDisableFI(){
+		document.getElementById('filoadingenabled').style.display='inline';
+	    var ajaxURL = CPANEL.security_token + '/cgi/attracta/disable_enhancements.cgi';
+	    var callback = {
+	        success: function(o) {
+	            try{
+					document.getElementById('filoadingenabled').style.display='none';
+	                if (o.responseText) {
+	                    var returnData = YAHOO.lang.JSON.parse(o.responseText);
+	                    if (returnData.status == 1) {
+	                        document.getElementById('modfastincludeon').style.display = 'none';
+	                        document.getElementById('modfastincludeoff').style.display = 'block';
+	                    } else {
+	                        displayErrors(returnData.message, 'disable_fi_status');
+	                        setTimeout('clearErrors("disable_fi_status")', 3000);
+	                    }
+	                } else {
+	                    displayErrors('Error while trying to disable apache module', 'disable_fi_status');
+	                    setTimeout('clearErrors("disable_fi_status")', 3000);
+	                }
+	            }catch(err){
+	                console.log('Disable apache module error: ' + err);
+	            }
+	        },
+	        failure: function(o) {
+	            try{
+					document.getElementById('filoadingenabled').style.display='none';
+	                displayErrors('Unable to disable apache module', 'disable_fi_status');
+	                setTimeout('clearErrors("disable_fi_status")', 3000);
+	            }catch(err){
+	                console.log('Error disabling apache module: ' + err);
+	            }
+	        },
+	        timeout: 10000
+	    }
+	    var transaction = YAHOO.util.Connect.asyncRequest('POST', ajaxURL, callback);
+	}
+
+	function enableFI(){
+		document.getElementById('filoadingdisabled').style.display='inline';
+	    var ajaxURL = CPANEL.security_token + '/cgi/attracta/enable_enhancements.cgi';
+	    var callback = {
+	        success: function(o) {
+	            try{
+					document.getElementById('filoadingdisabled').style.display='none';
+	                if (o.responseText) {
+	                    var returnData = YAHOO.lang.JSON.parse(o.responseText);
+	                    if (returnData.status == 1) {
+	                        document.getElementById('modfastincludeoff').style.display = 'none';
+	                        document.getElementById('modfastincludeon').style.display = 'block';
+	                    } else {
+	                        displayErrors(returnData.message, 'enable_fi_status');
+	                        setTimeout('clearErrors("enable_fi_status")', 3000);
+	                    }
+	                } else {
+	                    displayErrors('Error while trying to enable apache module', 'enable_fi_status');
+	                    setTimeout('clearErrors("enable_fi_status")', 3000);
+	                }
+	            }catch(err){
+	                console.log('Enable apache module error: ' + err);
+	            }
+	        },
+	        failure: function(o) {
+	            try{
+					document.getElementById('filoadingdisabled').style.display='none';
+	                displayErrors('Unable to enable apache module', 'enable_enhancements_status');
+	                setTimeout('clearErrors("enable_fi_status")', 3000);
+	            }catch(err){
+	                console.log('Error enabling apache module: ' + err);
+	            }
+	        },
+	        timeout: 10000
+	    }
+	    var transaction = YAHOO.util.Connect.asyncRequest('POST', ajaxURL, callback);
+	}
+
+	function linkServer(){
+	    try{
+	        var partnerID = document.getElementById('partnerid').value;
+        
+	        var ajaxURL = CPANEL.security_token + '/cgi/attracta/link_server.cgi';
+	        var postData = 'partnerid=' + encodeURIComponent(partnerID);
+	        var callback = {
+	            success: function(o){
+	                if (o.responseText) {
+	                    var returnData = YAHOO.lang.JSON.parse(o.responseText);
+	                    if(returnData.status === 1){
+	                        document.location = CPANEL.security_token + '/cgi/addon_attracta.cgi';
+	                    }else{
+	                        displayErrors('Unable to link server: ' + returnData.message, 'linkserver_status');
+	                        setTimeout('clearErrors("linkserver_status")', 5000);
+	                    }
+	                }else{
+	                    displayErrors('Error while trying to link server', 'linkserver_status');
+	                    setTimeout('clearErrors("linkserver_status")', 5000);
+	                }
+	            },
+	            failure: function(o){
+	                try{
+	                    displayErrors('Unable to link server', 'linkserver_status');
+	                    setTimeout('clearErrors("linkserver_status")', 5000);
+	                }catch(err){
+	                    console.log('Error linking server: ' + err);
+	                }
+	            }
+	        }
+        
+	        var transaction = YAHOO.util.Connect.asyncRequest('POST', ajaxURL, callback, postData);
+	    }catch(err){
+	        console.log('Error when trying to link server: ' + err);
+	    } 
+	}
+
+	function toggleLinkText(){
+		var thelink = document.getElementById('linktext');
+		var thebutton = document.getElementById('showlink')
+		if( thelink.style.display === 'none'){
+			thelink.style.display = 'block';
+			var txt = document.createTextNode('-');
+			thebutton.innerHTML = '';
+			thebutton.appendChild(txt);
+		}else if( thelink.style.display === 'block'){
+			thelink.style.display = 'none';
+			var txt = document.createTextNode('+');
+			thebutton.innerHTML = '';
+			thebutton.appendChild(txt);
+		}
+	}
+	function toggleIDText(){
+		var thelink = document.getElementById('idtext');
+		var thebutton = document.getElementById('idlink');
+		if( thelink.style.display === 'none'){
+			thelink.style.display = 'block';
+			var txt = document.createTextNode('-');
+			thebutton.innerHTML = '';
+			thebutton.appendChild(txt);
+		}else if( thelink.style.display === 'block'){
+			thelink.style.display = 'none';
+			var txt = document.createTextNode('+');
+			thebutton.innerHTML = '';
+			thebutton.appendChild(txt);
+		}
+	}
+
+[% IF ami %]
+	function init(){
+	    document.getElementById('modfastincludeon').style.display = 'block';
+	}
+	YAHOO.util.Event.onDOMReady(init);
+[% ELSE %]
+	function init(){
+	    document.getElementById('modfastincludeoff').style.display = 'block';
+	}
+	YAHOO.util.Event.onDOMReady(init);
+[% END %]
+</script>
+<!-- Attracta Content END -->
